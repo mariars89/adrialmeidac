@@ -30,24 +30,23 @@ if (!empty($bsq_input)) {
     <!-- link para Bootstrap CSS-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <title>Buscador</title>
-    <style>
-        /* Efecto de cursor de mano al pasar sobre una fila */
+    <style>       
         tbody tr:hover {
             cursor: pointer;
         }
     </style>
 </head>
-<body class="container mt-5">
+<body class="container mt-4">
     <h1 class="text-left">Buscador de productos</h1>
     
     <!-- Contenedor centrado con borde -->
     <form method="get" class="mb-4">
-        <div class="input-group border d-flex align-items-center justify-content-center p-3">
-            <input type="text" name="bsq" class="form-control border-end-0" placeholder="Buscar producto..." value="<?php echo htmlspecialchars($bsq_input); ?>">
-            <button type="submit" class="btn btn-primary border-start-0">Buscar</button>
+        <div class="input-group border rounded-3 d-flex align-items-center justify-content-center p-3">
+            <input type="text" name="bsq" class="form-control border rounded-3" placeholder="Buscar producto..." value="<?php echo htmlspecialchars($bsq_input); ?>"id="search-input">
+            <button type="submit" class="btn btn-primary ms-2 rounded-3">Buscar</button>
         </div>
     </form>
-    <h3 class="text-left">Realiza una búsqueda para ver resultados</h3>
+    <p class="text-center text-muted">Realiza una búsqueda para ver resultados</p>
     
     <!-- Resultados de la búsqueda -->     
     <div class="productosEncontrados">
@@ -72,19 +71,22 @@ if (!empty($bsq_input)) {
         ?>
     </div>
     
-    <p class="text-center mt-4 mb-0 text-muted">Ayuda: Haz doble clic en cualquier fila para copiar el código de barras al portapapeles.</p>
+    <p class="text-start mt-4 mb-0 text-muted">Ayuda: Haz doble clic en cualquier fila para copiar el código de barras al portapapeles.</p>
 
     <!--Bootstrap Bundle with Popper-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
     
-    <script>
+    <script>  
+     window.onload = function() {
+        document.getElementById("search-input").focus();
+    };      
         // Validación de campo de búsqueda
         let form = document.querySelector('form');
         form.addEventListener('submit', function(e) {
             let input = document.querySelector('input[name="bsq"]');
             if (input.value.trim() === '') {
                 e.preventDefault();
-                alert('Debes rellenar el campo de busqueda');
+                alert('Debes rellenar el campo de búsqueda');
                 input.focus();
             }            
         });
