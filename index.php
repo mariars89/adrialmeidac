@@ -18,7 +18,7 @@ if (!empty($bsq_input)) {
     if (is_array($respuesta)) {
         $resultadoProductos = $respuesta;
     } else {
-        $errorMensaje = $respuesta; // Es un mensaje de error si el producto no existe.
+        $errorMensaje = $respuesta;
     }
 }
 ?>
@@ -27,88 +27,133 @@ if (!empty($bsq_input)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- link para Bootstrap CSS-->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- DataTables Bootstrap CSS -->
+    <link href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
     <title>Buscador</title>
+
     <style>       
         tbody tr:hover {
             cursor: pointer;
         }
     </style>
 </head>
+
 <body class="container mt-4">
-    <h1 class="text-left">Buscador de productos</h1>
-    
-    <!-- Contenedor centrado con borde -->
-    <form method="get" class="mb-4">
-        <div class="input-group border rounded-3 d-flex align-items-center justify-content-center p-3">
-            <input type="text" name="bsq" class="form-control border rounded-3" placeholder="Buscar producto..." value="<?php echo htmlspecialchars($bsq_input); ?>"id="search-input">
-            <button type="submit" class="btn btn-primary ms-2 rounded-3">Buscar</button>
-        </div>
-    </form>
-    <p class="text-center text-muted">Realiza una búsqueda para ver resultados</p>
-    
-    <!-- Resultados de la búsqueda -->     
-    <div class="productosEncontrados">
-        <?php
-        if ($errorMensaje) {
-            echo "<div class='alert alert-danger mt-4' role='alert'>$errorMensaje</div>";
-        } elseif ($resultadoProductos) {
-            $totalResultados = count($resultadoProductos);
-            echo "<h2>PETICIÓN REALIZADA: $bsq_input</h2>";
-            echo "<p class='text-muted border d-flex align-items-center justify-content-start p-1'>Filtrar resultados...</p>";
-            echo "<p class='text-muted'>Mostrando $totalResultados de $totalResultados resultados</p>";
-            echo "<table class='table table-bordered table-sm' style='border-color: #dee2e6'>";
-            echo "<thead><tr><th>Producto</th><th>Código de barras</th></tr></thead><tbody>";
-            foreach ($resultadoProductos as $aProducto) {
-                echo "<tr class='barcode-row'>
-                        <td>".$aProducto['Name']."</td>
-                        <td class='barcode'>".$aProducto['BarcodeSummary']."</td>
-                      </tr>";
-            }
-            echo "</tbody></table>";
-        }
-        ?>
+
+<h1 class="text-left">Buscador de productos</h1>
+
+<form method="get" class="mb-4">
+    <div class="input-group border rounded-3 d-flex align-items-center justify-content-center p-3">
+        <input type="text" name="bsq" class="form-control border rounded-3"
+               placeholder="Buscar producto..."
+               value="<?php echo htmlspecialchars($bsq_input); ?>"
+               id="search-input">
+        <button type="submit" class="btn btn-primary ms-2 rounded-3">Buscar</button>
     </div>
-    
-    <p class="text-start mt-4 mb-0 text-muted">Ayuda: Haz doble clic en cualquier fila para copiar el código de barras al portapapeles.</p>
+</form>
 
-    <!--Bootstrap Bundle with Popper-->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-    
-    <script>  
-     window.onload = function() {
-        document.getElementById("search-input").focus();
-    };      
-        // Validación de campo de búsqueda
-        let form = document.querySelector('form');
-        form.addEventListener('submit', function(e) {
-            let input = document.querySelector('input[name="bsq"]');
-            if (input.value.trim() === '') {
-                e.preventDefault();
-                alert('Debes rellenar el campo de búsqueda');
-                input.focus();
-            }            
-        });
+<div class="productosEncontrados">  
+<?php 
+if ($errorMensaje) {
+    echo "<div class='alert alert-warning' role='alert'>$errorMensaje</div>";
+} elseif ($resultadoProductos) {
 
-        // Funcionalidad de copiar al portapapeles al hacer doble clic en una fila
-        document.querySelectorAll('.barcode-row').forEach(row => {
-            row.addEventListener('dblclick', function() {
-                // Seleccionamos el texto del código de barras
-                let barcode = this.querySelector('.barcode').textContent;
-                
-                // Crear un elemento temporal para copiar al portapapeles
-                let tempInput = document.createElement('input');
-                document.body.appendChild(tempInput);
-                tempInput.value = barcode;
-                tempInput.select();
-                document.execCommand('copy');  // Copiar al portapapeles
-                document.body.removeChild(tempInput);  // Eliminar el input temporal
-                alert('Código de barras copiado: ' + barcode); // Mensaje de confirmación
-            });
+    $totalResultados = count($resultadoProductos);
+
+    echo "<h2>PETICIÓN REALIZADA: $bsq_input</h2>";
+    echo "<p class='text-muted'>Mostrando $totalResultados de $totalResultados resultados</p>";
+
+    echo "<table id='tablaProductos' class='table table-bordered table-sm table-striped'>";
+    echo "<thead>
+            <tr>
+                <th>Producto</th>
+                <th>Código de barras</th>
+            </tr>
+          </thead>
+          <tbody>";
+
+    foreach ($resultadoProductos as $aProducto) {
+        echo "<tr class='barcode-row'>
+                <td>".$aProducto['Name']."</td>
+                <td class='barcode'>".$aProducto['BarcodeSummary']."</td>
+              </tr>";
+    }
+
+    echo "</tbody></table>";
+}
+?>
+</div>
+
+<p class="text-start mt-4 mb-0 text-muted">
+    Ayuda: Haz doble clic en cualquier fila para copiar el código de barras al portapapeles.
+</p>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+window.onload = function() {
+    document.getElementById("search-input").focus();
+};
+
+// Validación de campo de búsqueda
+let form = document.querySelector('form');
+form.addEventListener('submit', function(e) {
+    let input = document.querySelector('input[name="bsq"]');
+    if (input.value.trim() === '') {
+        e.preventDefault();
+        alert('Debes rellenar el campo de búsqueda');
+        input.focus();
+    }
+});
+
+// Inicializar DataTable (solo si existe la tabla)
+$(document).ready(function () {
+    if ($('#tablaProductos').length) {
+        $('#tablaProductos').DataTable({
+            paging: true,
+            searching: false,
+            ordering:false,
+            pageLength: 10,
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json"
+            }
         });
-    </script>
+    }
+});
+
+// Doble clic para copiar código de barras
+document.addEventListener('dblclick', function(e) {
+    let row = e.target.closest('.barcode-row');
+    if (!row) return;
+
+    let barcode = row.querySelector('.barcode').textContent;
+
+    let tempInput = document.createElement('input');
+    document.body.appendChild(tempInput);
+    tempInput.value = barcode;
+    tempInput.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempInput);
+
+    alert('Código de barras copiado: ' + barcode);
+});
+</script>
+
 </body>
 </html>
+
 
 
